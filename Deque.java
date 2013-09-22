@@ -61,15 +61,14 @@ public class Deque<Item> implements Iterable<Item> { //code for the methods in
 
       boolean firstEntry=false;
       if (this.isEmpty())firstEntry=true;      
+      //System.out.println("oldfirst is"+oldfirst+" and first is"+first);      
 		oldfirst=first;
 		first=new Node();
 		first.next=oldfirst;
       first.previous=null;
 		first.item=item;
-      //check if the list has only one element
-      if (firstEntry){
-         oldlast=first;
-      }
+      if (!firstEntry)oldfirst.previous=first;
+      if (firstEntry){last=first;}
 	}    // insert the item at the front
 
 	public void addLast(Item item){
@@ -83,23 +82,30 @@ public class Deque<Item> implements Iterable<Item> { //code for the methods in
 		last.item=item;
 		last.next=null;
       if (firstEntry)first=last;//there is only one element
-		if(!firstEntry)oldlast.next=last; //oldlast is null for first entry
+		if(!firstEntry){
+         oldlast.next=last; //oldlast is null for first entry
+         last.previous=oldlast;
+      }
 	}
 	public Item removeFirst(){
       if (this.isEmpty()){
          throw new  java.util.NoSuchElementException("the list is empty");
       }
+      Item retItem=first.item;
 		oldfirst=first;
    	first=first.next;
    	oldfirst.next=null;
-   	return oldfirst.item;
+      oldfirst.item=null;
+      oldfirst=null;
+      if(first!=null)first.previous=null;
+   	return retItem;
 	}
 	public Item removeLast() {
       if (this.isEmpty()){
          throw new  java.util.NoSuchElementException("the list is empty");
       }      
-      Node node=first;
-      if (node.next==null){
+      
+      if (first.next==null){
          //only one element!
          Item retItem = first.item;
          first=null;
@@ -107,15 +113,14 @@ public class Deque<Item> implements Iterable<Item> { //code for the methods in
          return retItem;
       }
       else{
-         //while(node.next.next!=null){
-         //   node=node.next;
-         //}
-         //Item retItem=last.item;
-         last.item=null;
+         Item retItem=last.item;         
+         oldlast=last;
+         last=oldlast.previous;
+         oldlast.item=null;
+         oldlast.next=null;
+         oldlast=null;
          last.next=null;
-         last=oldlast;
-         last.next=null;
-         return last.item;
+         return retItem;
       }
 	}
 
@@ -127,6 +132,14 @@ public class Deque<Item> implements Iterable<Item> { //code for the methods in
 
    public static void main (String[] args) {
       Deque<Integer> mydeque = new Deque<Integer>();
+
+      for (int i=0;i<10000;++i){
+         mydeque.addFirst(1);
+      }
+      for (int i=0;i<10000;++i){
+         mydeque.removeFirst();
+      }      
+
    }
 }
 
